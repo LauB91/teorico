@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Teórico DGT — Permiso B</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg2: #f5f5f4; --bg3: #efefed;
+    --text: #1a1a18; --text2: #6b6b68; --text3: #9b9b97;
+    --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
+    --success-bg: #eaf3de; --success-text: #3b6d11; --success-border: #639922;
+    --danger-bg: #fcebeb; --danger-text: #a32d2d; --danger-border: #e24b4a;
+    --info-bg: #e6f1fb; --info-text: #185fa5; --info-border: #378add;
+    --radius: 10px; --radius-lg: 14px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a; --bg2: #252523; --bg3: #2e2e2b;
+      --text: #f0efe9; --text2: #a0a09a; --text3: #707068;
+      --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
+      --success-bg: #173404; --success-text: #c0dd97; --success-border: #3b6d11;
+      --danger-bg: #501313; --danger-text: #f7c1c1; --danger-border: #a32d2d;
+      --info-bg: #042c53; --info-text: #85b7eb; --info-border: #185fa5;
+    }
+  }
+  html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); font-size: 16px; line-height: 1.5; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+  #app { max-width: 520px; margin: 0 auto; min-height: 100dvh; padding: 0 1rem calc(1.5rem + var(--safe-bottom)); }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0 1.25rem; position: sticky; top: 0; background: var(--bg); z-index: 10; border-bottom: 0.5px solid var(--border); margin-bottom: 1.25rem; }
+  .back-btn { background: none; border: none; cursor: pointer; font-size: 14px; color: var(--text2); padding: 6px 0; display: flex; align-items: center; gap: 6px; }
+  .back-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .topbar-right { display: flex; gap: 14px; font-size: 13px; color: var(--text2); align-items: center; }
+  .topbar-right svg { width: 14px; height: 14px; }
+  h1 { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  h2 { font-size: 18px; font-weight: 600; color: var(--text); }
+  h3 { font-size: 15px; font-weight: 600; color: var(--text); }
+  .subtitle { font-size: 14px; color: var(--text2); margin-bottom: 2rem; }
+  .menu-item { display: flex; align-items: center; gap: 14px; padding: 1rem 1.25rem; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); cursor: pointer; text-align: left; width: 100%; transition: background 0.15s; margin-bottom: 10px; }
+  .menu-item:active { background: var(--bg2); }
+  .menu-icon { width: 40px; height: 40px; border-radius: var(--radius); background: var(--bg2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .menu-icon svg { width: 20px; height: 20px; color: var(--text2); }
+  .menu-label { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+  .menu-desc { font-size: 13px; color: var(--text2); }
+  .progress-bar { height: 4px; background: var(--bg2); border-radius: 2px; margin-bottom: 1.5rem; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--text); border-radius: 2px; transition: width 0.3s; }
+  .question-text { font-size: 17px; font-weight: 500; color: var(--text); margin-bottom: 1.5rem; line-height: 1.55; }
+  .option-btn { display: block; width: 100%; padding: 0.875rem 1rem; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); cursor: pointer; text-align: left; font-size: 15px; color: var(--text); margin-bottom: 8px; transition: background 0.15s, border-color 0.15s; line-height: 1.4; }
+  .option-btn:active:not(:disabled) { background: var(--bg2); }
+  .option-btn:disabled { cursor: default; }
+  .option-correct { background: var(--success-bg) !important; border: 1.5px solid var(--success-border) !important; color: var(--success-text) !important; }
+  .option-wrong { background: var(--danger-bg) !important; border: 1.5px solid var(--danger-border) !important; color: var(--danger-text) !important; }
+  .next-btn { width: 100%; padding: 0.875rem; background: var(--bg); border: 0.5px solid var(--border2); border-radius: var(--radius); cursor: pointer; font-size: 15px; color: var(--text); margin-top: 1.25rem; transition: background 0.15s; }
+  .next-btn:active { background: var(--bg2); }
+  .doc-link { display: flex; align-items: center; gap: 8px; margin-top: 0.875rem; padding: 0.75rem 1rem; background: var(--info-bg); border: 0.5px solid var(--info-border); border-radius: var(--radius); font-size: 13px; color: var(--info-text); text-decoration: none; }
+  .doc-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 1.5rem 0; }
+  .stat-card { background: var(--bg2); border-radius: var(--radius); padding: 0.875rem; text-align: center; }
+  .stat-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+  .stat-value { font-size: 24px; font-weight: 600; color: var(--text); }
+  .result-icon { font-size: 52px; text-align: center; margin: 1.5rem 0 0.75rem; }
+  .result-title { font-size: 22px; font-weight: 600; text-align: center; margin-bottom: 6px; }
+  .result-sub { font-size: 14px; color: var(--text2); text-align: center; margin-bottom: 0; }
+  .tema-row { display: flex; align-items: center; justify-content: space-between; padding: 0.875rem 1.25rem; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); cursor: pointer; width: 100%; text-align: left; margin-bottom: 8px; transition: background 0.15s; }
+  .tema-row:active { background: var(--bg2); }
+  .tema-nombre { font-size: 15px; color: var(--text); }
+  .tema-count { font-size: 13px; color: var(--text2); }
+  .resumen-box { background: var(--bg2); border-radius: var(--radius); padding: 1rem; margin-bottom: 1.5rem; font-size: 14px; color: var(--text2); line-height: 1.7; }
+  .tema-q { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 12px; }
+  .tema-q-text { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 0.75rem; line-height: 1.5; }
+  .tema-opt { display: block; width: 100%; padding: 0.5rem 0.875rem; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); cursor: pointer; text-align: left; font-size: 13px; color: var(--text2); margin-bottom: 6px; transition: background 0.15s; }
+  .tema-opt:active:not(:disabled) { background: var(--bg3); }
+  .tema-opt:disabled { cursor: default; }
+  .color-danger { color: var(--danger-text) !important; }
+  .header-pad { padding-top: 1.25rem; }
+  .selector-row { display: flex; align-items: center; justify-content: space-between; padding: 0.875rem 1.25rem; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); cursor: pointer; width: 100%; text-align: left; margin-bottom: 8px; transition: background 0.15s; }
+  .selector-row:active { background: var(--bg2); }
+  .reset-btn { display: flex; align-items: center; gap: 6px; background: none; border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 6px 12px; cursor: pointer; font-size: 13px; color: var(--text2); transition: background 0.15s; }
+  .reset-btn:active { background: var(--bg2); }
+  .practica-score { font-size: 13px; color: var(--text2); }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const DOC_URL = 'https://docs.google.com/document/d/1DdxP2pPddi5MmiaHNFekt-wCby9ZDkhBtKOwNoLOHhU/edit';
+
+const TEMAS = [
+  {
+    id: 'documentacion',
+    nombre: 'Documentación y puntos',
+    temaRef: 'Tema 1',
+    resumen: 'La documentación obligatoria al conducir es: permiso de conducción, permiso de circulación y tarjeta ITV. El recibo del seguro no es obligatorio pero sí recomendable. Puede presentarse en formato físico o digital (app MiDGT). El permiso de conducción se renueva cada 10 años (cada 5 años a partir de los 65). Plazos importantes: 15 días para comunicar cambios de datos o llevar el vehículo a ITV tras modificación; 10 días si un agente detiene el vehículo sin ITV o para comunicar la venta; 30 días para solicitar documentación al comprar de ocasión. La pérdida de puntos no es inmediata, sino cuando la sanción sea firme. Máximo 8 puntos perdidos al día.',
+    preguntas: [
+      { p: '¿Cuál de estos documentos NO es obligatorio llevar al conducir?', ops: ['Permiso de conducción', 'Recibo del seguro', 'Tarjeta ITV'], r: 1 },
+      { p: '¿Con qué frecuencia se renueva el permiso de conducción para un conductor de 50 años?', ops: ['Cada 5 años', 'Cada 10 años', 'Cada 15 años'], r: 1 },
+      { p: 'Si un agente de tráfico detiene tu vehículo y no lleva la ITV, ¿cuántos días tienes para aprobarla?', ops: ['5 días', '10 días', '15 días'], r: 1 },
+      { p: '¿Cuántos puntos como máximo se pueden perder en un solo día?', ops: ['4 puntos', '6 puntos', '8 puntos'], r: 2 },
+      { p: 'Para recuperar todos los puntos sin hacer ningún curso, ¿qué debes hacer?', ops: ['No cometer infracciones durante 1 año', 'No cometer infracciones durante 2 años', 'Esperar 6 meses y pagar una multa'], r: 1 },
+      { p: 'El resultado "desfavorable" en la ITV significa:', ops: ['Puedes seguir circulando con normalidad', 'Solo puedes ir al taller y tienes 2 meses para repetir la ITV', 'Debes ir al taller en grúa'], r: 1 },
+      { p: '¿Cuántos días tienes para comunicar la venta de tu vehículo?', ops: ['5 días', '10 días', '30 días'], r: 1 },
+      { p: 'La documentación del vehículo puede presentarse en formato digital mediante:', ops: ['Cualquier app de fotos', 'La app MiDGT', 'Un correo electrónico'], r: 1 },
+    ]
+  },
+  {
+    id: 'semaforos',
+    nombre: 'Semáforos y agentes',
+    temaRef: 'Tema 2',
+    resumen: 'Semáforos circulares: rojo fijo o intermitente = detenerse; amarillo fijo = detenerse salvo que no haya seguridad; amarillo intermitente = pasar cediendo el paso; verde = circular con prioridad, excepto si bloqueas el cruce; flecha verde = pasar cediendo el paso. El semáforo cuadrado indica si el carril está abierto o cerrado, no regula prioridad. Agentes: brazo levantado = se detiene todo el mundo; brazos en cruz = se detienen los que corten esa trayectoria; silbato largo = reanudar marcha; silbato corto = detenerse.',
+    preguntas: [
+      { p: '¿Qué debes hacer ante un semáforo en amarillo fijo?', ops: ['Acelerar para pasar antes de que cambie', 'Detenerte, salvo que no puedas hacerlo con seguridad', 'Pasar cediendo el paso'], r: 1 },
+      { p: '¿Qué significa el semáforo en amarillo intermitente?', ops: ['Detenerse obligatoriamente', 'Pasar con prioridad', 'Pasar cediendo el paso'], r: 2 },
+      { p: 'Un semáforo en verde te permite circular, pero con una excepción. ¿Cuál?', ops: ['Si llueve', 'Si hay peatones en la acera', 'Si vas a bloquear el cruce'], r: 2 },
+      { p: '¿Para qué sirve el semáforo cuadrado?', ops: ['Regular la prioridad entre vehículos', 'Indicar si el carril está abierto o cerrado', 'Señalizar paso de peatones'], r: 1 },
+      { p: 'Un agente levanta el brazo. ¿Qué deben hacer los vehículos?', ops: ['Solo los que vienen de frente se detienen', 'Todos los vehículos se detienen', 'Solo los que van a girar se detienen'], r: 1 },
+      { p: '¿Qué significa un toque largo de silbato del agente?', ops: ['Detenerse', 'Reanudar la marcha', 'Reducir la velocidad'], r: 1 },
+      { p: 'Un semáforo rojo intermitente indica:', ops: ['Precaución, puedes pasar lentamente', 'Detenerse obligatoriamente', 'Ceder el paso y continuar'], r: 1 },
+    ]
+  },
+  {
+    id: 'senales',
+    nombre: 'Señales verticales',
+    temaRef: 'Tema 3',
+    resumen: 'Las señales de peligro son triángulos con borde rojo. Las señales de reglamentación son circulares: fondo blanco con borde rojo = prohibición o restricción; fondo azul circular = obligación. Las señales de indicación tienen fondo azul o verde. Cuando hay contradicciones entre señales del mismo tipo se obedece la más restrictiva; entre tipos distintos, la más prioritaria. Si una señal está solo a la derecha la obedece todo el mundo. STOP = detención obligatoria. Ceda el paso = ceder a los vehículos de la vía a la que se accede.',
+    preguntas: [
+      { p: '¿Qué indica una señal triangular con borde rojo?', ops: ['Obligación', 'Peligro', 'Prohibición'], r: 1 },
+      { p: '¿Qué forma tienen las señales de obligación?', ops: ['Triángulo rojo', 'Cuadrado azul', 'Círculo azul'], r: 2 },
+      { p: 'Una señal circular con fondo blanco y borde rojo indica:', ops: ['Obligación', 'Prohibición o restricción', 'Información'], r: 1 },
+      { p: '¿Qué significa la señal de STOP?', ops: ['Reducir la velocidad y seguir', 'Detención obligatoria y ceder el paso', 'Solo parar si hay vehículos'], r: 1 },
+      { p: 'Hay dos señales del mismo tipo que se contradicen entre sí. ¿Cuál obedeces?', ops: ['La que está a la derecha', 'La más restrictiva', 'La más prioritaria'], r: 1 },
+      { p: '¿Qué indica una señal de "Ceda el paso"?', ops: ['Detenerse siempre obligatoriamente', 'Ceder el paso a los vehículos de la vía a la que se accede', 'Prohibido el acceso'], r: 1 },
+      { p: 'Las señales de indicación tienen fondo de color:', ops: ['Rojo', 'Azul o verde', 'Amarillo'], r: 1 },
+      { p: 'Una señal está solo a la derecha de la calzada. ¿A quién afecta?', ops: ['Solo a los que giran a la derecha', 'A todo el mundo', 'Solo a los que van de frente'], r: 1 },
+    ]
+  },
+  {
+    id: 'marcas',
+    nombre: 'Marcas viales',
+    temaRef: 'Tema 5',
+    resumen: 'Línea continua = prohíbe adelantar y cruzar. Línea discontinua = permite adelantar si es seguro. Cuando hay una línea continua adosada a una discontinua, obedeces la que está más cerca de tu carril. Marcas discontinuas dobles = carril reversible. Cebreado en el suelo = prohibido parar y estacionar. Línea continua amarilla = prohibido parar y estacionar. Línea discontinua amarilla o zig-zag = prohibido estacionar, se permite parar. Las flechas de selección de carril indican el destino obligatorio de ese carril.',
+    preguntas: [
+      { p: '¿Qué significa una línea longitudinal continua en la calzada?', ops: ['Puedes adelantar si hay visibilidad', 'Prohibido cruzar o adelantar', 'Indica el carril bici'], r: 1 },
+      { p: 'Hay una línea continua adosada a una discontinua. ¿Cuál obedeces?', ops: ['Siempre la continua', 'La que está más cerca de tu carril', 'Siempre la discontinua'], r: 1 },
+      { p: '¿Qué indica un cebreado pintado en el suelo?', ops: ['Zona de adelantamiento', 'Prohibido parar y estacionar', 'Paso de peatones'], r: 1 },
+      { p: '¿Qué significa una línea amarilla continua en el borde de la calzada?', ops: ['Estacionamiento limitado', 'Prohibido parar y estacionar', 'Prohibido estacionar, se permite parar'], r: 1 },
+      { p: 'Una línea amarilla discontinua o zig-zag en el bordillo indica:', ops: ['Prohibido parar y estacionar', 'Prohibido estacionar, se permite parar', 'Solo permitido taxis'], r: 1 },
+      { p: 'Las marcas discontinuas dobles en el centro de la calzada indican:', ops: ['Prohibido adelantar', 'Carril reversible', 'Doble sentido de circulación'], r: 1 },
+      { p: '¿Qué indica una flecha de selección de carril?', ops: ['Velocidad mínima en ese carril', 'El destino obligatorio del carril', 'Que el carril está cerrado'], r: 1 },
+    ]
+  },
+  {
+    id: 'alumbrado',
+    nombre: 'Alumbrado del vehículo',
+    temaRef: 'Tema 6',
+    resumen: 'Las luces del vehículo sirven para ver, ser visto y señalizar. Colores: delante blanco, detrás rojo, lateral amarillo. Se encienden entre la puesta y salida del sol, en condiciones desfavorables y en túneles. Una vía está insuficientemente iluminada cuando no se distingue un vehículo oscuro a 50 m o la matrícula a 10 m. La luz de posición no puede usarse sola al circular (debe acompañar a la de cruce). La luz de carretera es obligatoria en vía interurbana, insuficientemente iluminada, a más de 40 km/h y sin deslumbrar. La luz de estacionamiento se usa de noche, en travesía e insuficientemente iluminada.',
+    preguntas: [
+      { p: '¿De qué color son las luces traseras de un vehículo?', ops: ['Blanco', 'Amarillo', 'Rojo'], r: 2 },
+      { p: '¿Cuándo se considera que una vía está insuficientemente iluminada?', ops: ['Cuando hay menos de 3 farolas por km', 'Cuando no se distingue un vehículo oscuro a 50 m o la matrícula a 10 m', 'Cuando es de noche'], r: 1 },
+      { p: '¿Puedes circular solo con la luz de posición encendida?', ops: ['Sí, es suficiente de noche', 'No, debe ir acompañada de la luz de cruce', 'Solo en vías urbanas'], r: 1 },
+      { p: '¿Cuándo es obligatoria la luz de carretera (largo alcance)?', ops: ['Siempre que seas fuera de poblado', 'En vía interurbana, insuficientemente iluminada, a más de 40 km/h y sin deslumbrar', 'Solo en autopistas'], r: 1 },
+      { p: '¿Cuándo debes usar la luz de estacionamiento?', ops: ['Siempre que aparques de noche', 'De noche, en travesía e insuficientemente iluminada', 'En cualquier estacionamiento nocturno fuera de poblado'], r: 1 },
+      { p: 'La luz de emergencia (luces de avería) es de color:', ops: ['Rojo', 'Blanco', 'Amarillo'], r: 2 },
+      { p: '¿En qué casos debes encender las luces del vehículo?', ops: ['Solo de noche', 'Entre puesta y salida del sol, condiciones desfavorables y túneles', 'Solo en condiciones de niebla'], r: 1 },
+    ]
+  },
+  {
+    id: 'via',
+    nombre: 'Utilización de la vía',
+    temaRef: 'Tema 7',
+    resumen: 'En general se circula por el carril derecho. En poblado se puede usar el carril más conveniente para el destino. Están obligados a circular por el arcén: peatones, animales, ciclos, ciclomotores y vehículos especiales ligeros. El carril izquierdo está prohibido para camiones pesados, furgones pesados y conjuntos de más de 7 metros. Circular en paralelo: ciclos y VMP sí pueden; ciclomotores como norma general no; motocicletas nunca. En una glorieta o cruce se abandona dejando el centro a la izquierda. El carril VAO permite entrada con 1 ocupante a: minusválidos, bus, taxi, ambulancia, policía, bomberos, motocicletas y etiqueta 0 emisiones.',
+    preguntas: [
+      { p: '¿Por qué carril debes circular como norma general fuera de poblado?', ops: ['Por el izquierdo', 'Por el central', 'Por el derecho'], r: 2 },
+      { p: '¿Quién está obligado a circular por el arcén?', ops: ['Solo los peatones', 'Peatones, ciclos, ciclomotores y vehículos especiales ligeros', 'Todos los vehículos lentos'], r: 1 },
+      { p: '¿Pueden las motocicletas circular en paralelo?', ops: ['Sí, siempre', 'Solo en autopistas', 'No, nunca'], r: 2 },
+      { p: '¿Cuál de estos puede entrar en el carril VAO con un solo ocupante?', ops: ['Turismo con etiqueta C', 'Motocicleta', 'Furgoneta de reparto'], r: 1 },
+      { p: '¿A quién está prohibido el carril izquierdo en vías de varios carriles?', ops: ['A los turismos que van despacio', 'A camiones pesados, furgones pesados y conjuntos de más de 7 metros', 'A las motocicletas'], r: 1 },
+      { p: 'Al salir de una glorieta, ¿cómo debes hacerlo?', ops: ['Dejando el centro a la derecha', 'Dejando el centro a la izquierda', 'Por cualquier carril disponible'], r: 1 },
+      { p: '¿Pueden los ciclos circular en paralelo?', ops: ['No, nunca', 'Sí, pueden', 'Solo en vías urbanas'], r: 1 },
+    ]
+  },
+  {
+    id: 'velocidad',
+    nombre: 'Velocidades y límites',
+    temaRef: 'Tema 8',
+    resumen: 'Límites genéricos: autopistas y autovías 120 km/h; carreteras convencionales con arcén ≥1,5 m hasta 90 km/h; vías urbanas 50 km/h; zonas residenciales 20 km/h; zonas de coexistencia 20 km/h; plataforma única calzada-acera 20 km/h. Conductores noveles (primer año): 100 km/h en autopistas. La velocidad mínima en autopistas es la mitad del límite máximo. Transporte escolar fuera de poblado: -10 km/h. Mercancías peligrosas: -10 km/h. Conducir a 35 grados equivale a 0,5 g/l en sangre.',
+    preguntas: [
+      { p: '¿Cuál es el límite de velocidad genérico en autopistas para un turismo?', ops: ['100 km/h', '110 km/h', '120 km/h'], r: 2 },
+      { p: '¿Cuál es el límite de velocidad en vías urbanas si no hay señal?', ops: ['30 km/h', '50 km/h', '60 km/h'], r: 1 },
+      { p: '¿Qué velocidad máxima tienen los conductores noveles en autopista?', ops: ['90 km/h', '100 km/h', '120 km/h'], r: 1 },
+      { p: '¿Cuál es el límite en zonas de coexistencia y áreas residenciales?', ops: ['10 km/h', '20 km/h', '30 km/h'], r: 1 },
+      { p: 'La velocidad mínima en autopista es:', ops: ['La mitad del límite máximo permitido', '60 km/h siempre', '40 km/h'], r: 0 },
+      { p: 'El transporte escolar fuera de poblado debe circular:', ops: ['A la misma velocidad que el resto', '10 km/h por debajo del límite genérico', '20 km/h por debajo del límite'], r: 1 },
+      { p: 'Ante niebla densa, ¿qué debes hacer con la velocidad?', ops: ['Mantenerla para no interrumpir el tráfico', 'Reducirla aunque estés dentro del límite', 'Acelerar para salir de la zona'], r: 1 },
+    ]
+  },
+  {
+    id: 'adelantamiento',
+    nombre: 'Adelantamiento y distancia',
+    temaRef: 'Tema 9',
+    resumen: 'Antes de adelantar: RSM (retrovisor, señalización, maniobra). Se adelanta normalmente por la izquierda. Se adelanta por la derecha si el vehículo de delante va a girar a la izquierda, estamos en poblado con carriles delimitados, o adelantamos a un tranvía en vía de doble sentido. Distancia lateral mínima al adelantar a ciclistas: 1,5 metros. Con línea continua solo se puede adelantar a peatones, animales, ciclos y ciclomotores. Está prohibido adelantar si el de detrás ya ha iniciado la maniobra.',
+    preguntas: [
+      { p: '¿Cuál es la distancia lateral mínima al adelantar a un ciclista?', ops: ['0,5 metros', '1 metro', '1,5 metros'], r: 2 },
+      { p: '¿Puedes adelantar en un cambio de rasante sin visibilidad?', ops: ['Sí, si el carril contrario está libre', 'No, está prohibido', 'Solo si llevas luces largas'], r: 1 },
+      { p: '¿Qué significa RSM en una maniobra?', ops: ['Rapidez, Seguridad y Maniobra', 'Retrovisor, Señalización y Maniobra', 'Ruta, Señal y Maniobra'], r: 1 },
+      { p: '¿A quiénes puedes adelantar con línea continua?', ops: ['A nadie, la línea continua prohíbe siempre adelantar', 'A peatones, animales, ciclos y ciclomotores', 'Solo a peatones'], r: 1 },
+      { p: '¿Está permitido adelantar en un paso de peatones?', ops: ['Sí, si no hay peatones', 'No, está prohibido', 'Solo en vías de más de dos carriles'], r: 1 },
+      { p: '¿Cuándo se adelanta por la derecha?', ops: ['Nunca está permitido', 'Si el vehículo de delante va a girar a la izquierda', 'Solo en autopistas'], r: 1 },
+      { p: '¿Se puede adelantar si el vehículo de detrás ya ha iniciado la maniobra?', ops: ['Sí, si hay espacio suficiente', 'No, está prohibido', 'Solo si vas más rápido'], r: 1 },
+    ]
+  },
+  {
+    id: 'inmovilizaciones',
+    nombre: 'Parada y estacionamiento',
+    temaRef: 'Tema 11',
+    resumen: 'Detención: involuntaria. Parada: voluntaria, menos de 2 minutos y sin abandonar el vehículo. Estacionamiento: cualquier otra situación. En pendiente ascendente se deja en primera marcha; en descendente en marcha atrás. Parada y estacionamiento prohibidos: en curvas o cambios de rasante sin visibilidad, túneles, pasos a nivel, pasos de peatones, pasos para ciclistas, carril bus, intersecciones y proximidades, autovías y autopistas. Estacionamiento prohibido (no parada): zonas con limitación sin ticket, carga y descarga, vados, doble fila.',
+    preguntas: [
+      { p: '¿Cuál es la diferencia entre parada y estacionamiento?', ops: ['No hay diferencia', 'La parada es voluntaria de menos de 2 min sin abandonar el vehículo; el estacionamiento es cualquier otra situación', 'El estacionamiento es siempre de menos de 2 minutos'], r: 1 },
+      { p: 'Si apartas en una pendiente ascendente, ¿en qué marcha dejas el coche?', ops: ['En marcha atrás', 'En primera marcha', 'En punto muerto'], r: 1 },
+      { p: '¿Está permitido parar en un túnel?', ops: ['Sí, si es por menos de 2 minutos', 'No, está prohibido parar y estacionar', 'Solo en los túneles con arcén'], r: 1 },
+      { p: '¿Puedes estacionar en doble fila?', ops: ['Sí, si es por poco tiempo', 'No, el estacionamiento en doble fila está prohibido', 'Solo si dejas el motor en marcha'], r: 1 },
+      { p: '¿Está prohibida la parada en las proximidades de un paso de peatones?', ops: ['Sí, siempre', 'No, en las proximidades sí se puede parar', 'Solo si hay peatones'], r: 1 },
+      { p: 'En pendiente descendente, ¿en qué posición dejas el cambio al estacionar?', ops: ['Primera marcha', 'Marcha atrás', 'Punto muerto'], r: 1 },
+      { p: '¿Puedes parar en un carril bus?', ops: ['Sí, si es por menos de 2 minutos', 'No, parada y estacionamiento están prohibidos en carril bus', 'Solo fuera del horario del bus'], r: 1 },
+    ]
+  },
+  {
+    id: 'prioridad',
+    nombre: 'Prioridad de paso',
+    temaRef: 'Tema 12',
+    resumen: 'En intersecciones sin señalizar: prioridad al que viene por la derecha, excepto si el vehículo se incorpora por vía no pavimentada, accede a una autovía o se aproxima a una glorieta. Los vehículos prioritarios (policía, ambulancia) solo tienen prioridad cuando circulan en servicio urgente con señal luminosa y acústica. Los peatones tienen prioridad en pasos de peatones, cuando el vehículo gira, en zonas residenciales y zona 30. Los ciclistas tienen prioridad en paso para ciclistas y cuando el vehículo gira. En estrechamientos: prioridad al que entra primero; si entran a la vez, al vehículo más pesado; en pendiente, prioridad al que sube.',
+    preguntas: [
+      { p: 'En una intersección sin señalizar, ¿quién tiene prioridad?', ops: ['El que llega primero', 'El vehículo que viene por la derecha', 'El vehículo más grande'], r: 1 },
+      { p: 'En una rotonda, ¿quién tiene prioridad?', ops: ['El vehículo que entra en la rotonda', 'El vehículo que ya circula dentro', 'El que va más rápido'], r: 1 },
+      { p: '¿Cuándo tienen prioridad los vehículos de emergencia?', ops: ['Siempre', 'Solo en vías urbanas', 'Cuando circulan en servicio urgente con señal luminosa y acústica'], r: 2 },
+      { p: 'En un paso de peatones sin semáforo, ¿quién tiene prioridad?', ops: ['El vehículo', 'El peatón', 'Depende de quién llega primero'], r: 1 },
+      { p: 'En un estrechamiento, ¿quién tiene prioridad si dos vehículos entran a la vez?', ops: ['El más rápido', 'El más pesado o grande', 'El que viene de frente'], r: 1 },
+      { p: 'En una pendiente con un estrechamiento, ¿quién tiene prioridad?', ops: ['El que baja', 'El que sube', 'El vehículo más grande'], r: 1 },
+      { p: 'Un autobús urbano señaliza su incorporación desde una parada, ¿debes cederle el paso?', ops: ['No, tiene que esperar un hueco', 'Sí, fuera de autopista y autovía', 'Solo si va vacío'], r: 1 },
+    ]
+  },
+  {
+    id: 'transporte',
+    nombre: 'Transporte de personas y cargas',
+    temaRef: 'Tema 13',
+    resumen: 'Pasajeros en bicicleta: máximo hasta 7 años de edad. Pasajeros en motocicleta o ciclomotor: mínimo 12 años (mínimo 7 si el conductor es padre, madre o tutor). Dimensiones máximas del vehículo con carga: altura 4 m, anchura 2,55 m, longitud 12 m. Remolque ligero: hasta 750 kg MMA, lleva la matrícula del coche. Remolque pesado: más de 750 kg MMA, lleva matrícula del coche más una propia de color rojo. En vehículos de 2 ruedas con remolque, velocidad reducida un 10%.',
+    preguntas: [
+      { p: '¿Cuál es la edad máxima de un pasajero en bicicleta?', ops: ['5 años', '7 años', '12 años'], r: 1 },
+      { p: '¿Cuál es la edad mínima para ir de pasajero en motocicleta?', ops: ['7 años', '10 años', '12 años'], r: 2 },
+      { p: 'Un niño de 8 años puede ir de pasajero en moto si el conductor es su madre, ¿es correcto?', ops: ['No, mínimo 12 años siempre', 'Sí, si el conductor es padre, madre o tutor el mínimo es 7 años', 'Solo en trayectos cortos'], r: 1 },
+      { p: '¿Cuál es la altura máxima de un vehículo con carga?', ops: ['3,5 metros', '4 metros', '4,5 metros'], r: 1 },
+      { p: '¿Qué matrícula lleva un remolque ligero?', ops: ['Una propia de color rojo', 'La misma matrícula que el vehículo tractor', 'No necesita matrícula'], r: 1 },
+      { p: '¿Cuál es el límite de MMA para un remolque ligero?', ops: ['500 kg', '750 kg', '1.000 kg'], r: 1 },
+      { p: '¿Cuánto debe reducir la velocidad un vehículo de 2 ruedas que lleva remolque?', ops: ['5%', '10%', '20%'], r: 1 },
+    ]
+  },
+  {
+    id: 'seguridad',
+    nombre: 'Seguridad activa y pasiva',
+    temaRef: 'Tema 14',
+    resumen: 'Seguridad activa: sistemas que previenen el accidente (ABS, ESP, dirección asistida, luces). Seguridad pasiva: actúa cuando el accidente ocurre (airbag, cinturón, apoyacabezas, zonas deformables). El cinturón es obligatorio para todos los ocupantes. Los menores de 135 cm deben usar SRI (sistema de retención infantil) homologado y van preferentemente en los asientos traseros. El airbag sin cinturón puede ser peligroso. La banda torácica del cinturón va sobre la clavícula sin rozar el cuello. La abdominal va sobre la cadera. Los neumáticos se cambian cuando el dibujo de la banda de rodadura es inferior a 1,6 mm.',
+    preguntas: [
+      { p: '¿Qué sistema pertenece a la seguridad activa?', ops: ['Airbag', 'Cinturón de seguridad', 'Sistema ABS'], r: 2 },
+      { p: '¿El cinturón de seguridad es obligatorio para...?', ops: ['Solo el conductor', 'Solo los adultos', 'Todos los ocupantes del vehículo'], r: 2 },
+      { p: 'Un niño de 120 cm de altura, ¿dónde debe ir?', ops: ['Delante con airbag desactivado', 'Detrás con SRI homologado adecuado', 'Puede elegir su asiento'], r: 1 },
+      { p: '¿Qué es el ESP?', ops: ['Un sistema de freno de emergencia', 'Un sistema de control de estabilidad', 'Un tipo de airbag'], r: 1 },
+      { p: 'El airbag sin cinturón de seguridad...', ops: ['Es igual de efectivo', 'Puede resultar más peligroso', 'No se activa'], r: 1 },
+      { p: '¿Cuándo hay que cambiar el neumático por desgaste?', ops: ['Cada 2 años obligatoriamente', 'Cuando el dibujo de la banda de rodadura sea inferior a 1,6 mm', 'Cuando la presión baje de 2 bar'], r: 1 },
+      { p: 'La banda abdominal del cinturón debe colocarse:', ops: ['Sobre el abdomen', 'Sobre la cadera y debajo del abdomen', 'Sobre el pecho'], r: 1 },
+    ]
+  },
+  {
+    id: 'alcohol',
+    nombre: 'Alcohol, drogas y medicamentos',
+    temaRef: 'Tema 16',
+    resumen: 'Tasa de alcoholemia general: 0,5 g/l en sangre (0,25 mg/l en aire). Conductores noveles y profesionales: 0,3 g/l (0,15 mg/l). Menores: 0,0. El alcohol alcanza su nivel máximo entre 30 y 90 minutos después de la última copa. Se elimina más lentamente durante el sueño. Efectos: aumenta tiempo de reacción, somnolencia, fatiga y riesgo aceptado; disminuye campo visual (efecto túnel). Cannabis: altera percepción, aumenta tiempo de reacción. Cocaína: agresividad, acepta más riesgo. Anfetaminas: impaciente, impulsivo. Las drogas están prohibidas en cualquier cantidad.',
+    preguntas: [
+      { p: '¿Cuál es la tasa de alcohol permitida para un conductor general en sangre?', ops: ['0,3 g/l', '0,5 g/l', '0,8 g/l'], r: 1 },
+      { p: '¿Cuál es el límite para conductores noveles?', ops: ['0,5 g/l', '0,3 g/l', '0,0 g/l'], r: 1 },
+      { p: '¿Cuándo alcanza el alcohol su nivel más alto en sangre?', ops: ['Inmediatamente al beber', 'Entre 30 y 90 minutos después de la última copa', 'A las 3 horas de beber'], r: 1 },
+      { p: '¿Está permitido conducir habiendo consumido cannabis?', ops: ['Sí, si solo fue una vez', 'No, está prohibido en cualquier cantidad', 'Solo si no se nota el efecto'], r: 1 },
+      { p: '¿Qué efecto tiene el alcohol sobre el campo visual?', ops: ['Lo amplía', 'Lo estrecha (efecto túnel)', 'No tiene efecto sobre la visión'], r: 1 },
+      { p: 'La tasa de 0,25 mg/l en aire espirado equivale a:', ops: ['0,5 g/l en sangre', '0,3 g/l en sangre', '0,8 g/l en sangre'], r: 0 },
+      { p: '¿Qué droga provoca agresividad, competitividad y mayor aceptación del riesgo?', ops: ['Cannabis', 'Cocaína', 'Anfetaminas'], r: 1 },
+    ]
+  },
+  {
+    id: 'riesgo',
+    nombre: 'Situaciones de riesgo',
+    temaRef: 'Tema 17',
+    resumen: 'Con lluvia: la calzada es más deslizante con las primeras gotas; la distancia de frenado se duplica; no se recomienda la luz de carretera. Aquaplaning: el neumático no evacua el agua y pierde contacto con el suelo; causas: velocidad excesiva o mal estado del neumático. Con nieve o hielo: la distancia de frenado puede multiplicarse por 10; las cadenas van en las ruedas motrices. Con niebla: humedece la calzada y aumenta la distancia de frenado. Derrape por delante: girar al lado contrario; por detrás: girar al mismo lado. Ante deslumbramiento: desviar la vista sin modificar la trayectoria.',
+    preguntas: [
+      { p: 'Con lluvia, ¿cuánto se multiplica la distancia de frenado?', ops: ['Se mantiene igual', 'Se duplica', 'Se triplica'], r: 1 },
+      { p: '¿Cuándo está la calzada más deslizante con la lluvia?', ops: ['Cuando lleva mucho tiempo lloviendo', 'Con las primeras gotas', 'Solo cuando hay charcos visibles'], r: 1 },
+      { p: '¿Qué es el aquaplaning?', ops: ['Dificultad de dirección por viento lateral', 'El neumático pierde contacto con el suelo al no evacuar el agua', 'Deslumbramiento por el reflejo del agua'], r: 1 },
+      { p: 'Con nieve o hielo, la distancia de frenado puede multiplicarse por:', ops: ['2', '5', '10'], r: 2 },
+      { p: '¿Dónde se colocan las cadenas?', ops: ['En las ruedas traseras siempre', 'En las ruedas motrices', 'En las 4 ruedas siempre'], r: 1 },
+      { p: 'Si el vehículo derrapa por la parte delantera, ¿qué debes hacer con el volante?', ops: ['Girar al mismo lado del derrape', 'Girar al lado contrario del derrape', 'No tocar el volante'], r: 1 },
+      { p: 'Ante un deslumbramiento, ¿qué debes hacer?', ops: ['Frenar bruscamente', 'Desviar la vista sin modificar la trayectoria y moderar la velocidad', 'Poner las luces largas para avisar'], r: 1 },
+    ]
+  },
+  {
+    id: 'auxilios',
+    nombre: 'Primeros auxilios y accidentes',
+    temaRef: 'Tema 18',
+    resumen: 'Ante un accidente: PAS (Proteger, Avisar, Socorrer). El número de emergencias es el 112. Se atiende primero a los heridos inconscientes. Como norma general no se mueve ni se saca al herido del vehículo. No se quita el casco al motorista (salvo asfixia). No se da de comer ni beber a los heridos. RCP: 30 compresiones + 2 insuflaciones. En niños: primero 5 insuflaciones, luego 15 compresiones + 2 insuflaciones. Si el herido está inconsciente pero respira: posición lateral de seguridad. La "hora de oro" es el período más crítico tras el accidente.',
+    preguntas: [
+      { p: '¿Qué significa PAS en un accidente?', ops: ['Parar, Avisar, Señalizar', 'Proteger, Avisar, Socorrer', 'Parar, Atender, Señalizar'], r: 1 },
+      { p: '¿Cuál es el número de emergencias en España?', ops: ['091', '061', '112'], r: 2 },
+      { p: 'Como norma general, ¿se debe sacar al herido del vehículo?', ops: ['Sí, siempre lo antes posible', 'No, salvo excepciones justificadas', 'Depende de si está consciente'], r: 1 },
+      { p: '¿Cuántas compresiones y ventilaciones tiene la RCP en adultos?', ops: ['15 compresiones y 2 ventilaciones', '30 compresiones y 2 ventilaciones', '30 compresiones y 5 ventilaciones'], r: 1 },
+      { p: 'Un herido está inconsciente pero respira. ¿Qué posición le colocas?', ops: ['Boca arriba con las piernas elevadas', 'Posición lateral de seguridad', 'Sentado con la cabeza hacia atrás'], r: 1 },
+      { p: '¿Cuándo puedes quitarle el casco a un motorista accidentado?', ops: ['Siempre, es lo primero que hay que hacer', 'Nunca bajo ningún concepto', 'Solo si hay riesgo de asfixia u otras excepciones'], r: 2 },
+      { p: '¿Qué es la "hora de oro" en un accidente?', ops: ['El tiempo hasta que llega la policía', 'La hora después del accidente donde más vidas se pueden salvar', 'El tiempo máximo para avisar al seguro'], r: 1 },
+    ]
+  }
+];
+
+const TODAS = TEMAS.flatMap(t => t.preguntas.map(p => ({ ...p, temaId: t.id, temaRef: t.temaRef, temaNombre: t.nombre })));
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const SVG = {
+  clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  x: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  arrow: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>`,
+  chevron: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`,
+  book: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
+  external: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`,
+  reset: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.01-6"/></svg>`,
+  exam: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  practice: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>`,
+};
+
+let state = { view: 'menu' };
+
+function docLink(temaRef, temaNombre) {
+  return `<a href="${DOC_URL}" target="_blank" class="doc-link">${SVG.external} Repasar ${temaRef}: ${temaNombre}</a>`;
+}
+
+function render() {
+  const app = document.getElementById('app');
+  const views = { menu: renderMenu, examen: renderExamen, 'practica-selector': renderPracticaSelector, practica: renderPractica, temas: renderTemas, tema: renderTema, resultado: renderResultado };
+  app.innerHTML = (views[state.view] || renderMenu)();
+  bindEvents();
+}
+
+function renderMenu() {
+  return `
+  <div class="header-pad">
+    <h1>Teórico DGT</h1>
+    <p class="subtitle">Permiso B · ${TODAS.length} preguntas · ${TEMAS.length} temas</p>
+    <button class="menu-item" data-action="start-examen">
+      <div class="menu-icon">${SVG.exam}</div>
+      <div><div class="menu-label">Examen simulado</div><div class="menu-desc">30 preguntas · 40 min · máx. 3 fallos</div></div>
+    </button>
+    <button class="menu-item" data-action="start-practica-selector">
+      <div class="menu-icon">${SVG.practice}</div>
+      <div><div class="menu-label">Práctica libre</div><div class="menu-desc">Elige tema o practica todo</div></div>
+    </button>
+    <button class="menu-item" data-action="start-temas">
+      <div class="menu-icon">${SVG.book}</div>
+      <div><div class="menu-label">Revisar temas</div><div class="menu-desc">Resumen teórico y preguntas por tema</div></div>
+    </button>
+  </div>`;
+}
+
+function renderPracticaSelector() {
+  return `
+  <div class="topbar">
+    <button class="back-btn" data-action="menu">${SVG.arrow} Volver</button>
+    <div></div>
+  </div>
+  <h2 style="margin-bottom:1rem;">¿Qué quieres practicar?</h2>
+  <button class="selector-row" data-action="start-practica" data-tema-id="all">
+    <span style="font-size:15px;font-weight:500;color:var(--text);">Todos los temas</span>
+    <span style="font-size:13px;color:var(--text2);">${TODAS.length} preguntas ${SVG.chevron.replace('svg', 'svg style="width:14px;height:14px;display:inline;vertical-align:-3px;"')}</span>
+  </button>
+  ${TEMAS.map(t => `
+    <button class="selector-row" data-action="start-practica" data-tema-id="${t.id}">
+      <span style="font-size:15px;color:var(--text);">${t.nombre}</span>
+      <span style="font-size:13px;color:var(--text2);">${t.preguntas.length} preguntas ${SVG.chevron.replace('svg', 'svg style="width:14px;height:14px;display:inline;vertical-align:-3px;"')}</span>
+    </button>
+  `).join('')}`;
+}
+
+function renderPractica() {
+  const { preguntas, actual, respondida, seleccion, aciertos, fallos } = state;
+  const q = preguntas[actual];
+  const tema = TEMAS.find(t => t.id === q.temaId);
+  return `
+  <div class="topbar">
+    <button class="back-btn" data-action="start-practica-selector">${SVG.arrow} Salir</button>
+    <div class="topbar-right">
+      <span class="practica-score" style="color:var(--success-text);">✓ ${aciertos}</span>
+      <span class="practica-score" style="color:var(--danger-text);">✗ ${fallos}</span>
+      <span style="font-size:12px;color:var(--text3);">${q.temaRef}</span>
+    </div>
+  </div>
+  <p class="question-text">${q.p}</p>
+  <div>
+    ${q.ops.map((o, i) => {
+      let cls = 'option-btn';
+      if (respondida) {
+        if (i === q.r) cls += ' option-correct';
+        else if (i === seleccion && seleccion !== q.r) cls += ' option-wrong';
+      }
+      return `<button class="${cls}" data-action="resp-practica" data-idx="${i}" ${respondida ? 'disabled' : ''}>${o}</button>`;
+    }).join('')}
+  </div>
+  ${respondida && seleccion !== q.r ? docLink(q.temaRef, q.temaNombre) : ''}
+  ${respondida ? `<button class="next-btn" data-action="next-practica">Siguiente pregunta</button>` : ''}`;
+}
+
+function renderExamen() {
+  const { preguntas, actual, respuestas, tiempo } = state;
+  const q = preguntas[actual];
+  const total = preguntas.length;
+  const fallos = respuestas.filter((r, i) => r !== null && r !== preguntas[i].r).length;
+  const mins = Math.floor(tiempo / 60);
+  const secs = String(tiempo % 60).padStart(2, '0');
+  const pct = ((actual + 1) / total * 100).toFixed(0);
+  return `
+  <div class="topbar">
+    <button class="back-btn" data-action="menu">${SVG.arrow} Salir</button>
+    <div class="topbar-right">
+      <span id="timer-display">${SVG.clock} ${mins}:${secs}</span>
+      <span style="color:${fallos >= 3 ? 'var(--danger-text)' : 'var(--text2)'}">${SVG.x} ${fallos}/3</span>
+      <span>${actual + 1}/${total}</span>
+    </div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+  <p class="question-text">${q.p}</p>
+  <div id="opciones">
+    ${q.ops.map((o, i) => `<button class="option-btn" data-action="resp-examen" data-idx="${i}">${o}</button>`).join('')}
+  </div>`;
+}
+
+function renderTemas() {
+  return `
+  <div class="topbar">
+    <button class="back-btn" data-action="menu">${SVG.arrow} Volver</button>
+    <div></div>
+  </div>
+  <h2 style="margin-bottom:1rem;">Temas</h2>
+  ${TEMAS.map(t => `
+    <button class="tema-row" data-action="ver-tema" data-id="${t.id}">
+      <span class="tema-nombre">${t.nombre}</span>
+      <span class="tema-count">${t.preguntas.length} preguntas ${SVG.chevron.replace('svg', 'svg style="width:14px;height:14px;display:inline;vertical-align:-3px;"')}</span>
+    </button>
+  `).join('')}`;
+}
+
+function renderTema() {
+  const tema = TEMAS.find(t => t.id === state.temaId);
+  const { respondidas } = state;
+  const totalRespondidas = Object.keys(respondidas).length;
+  const todasRespondidas = totalRespondidas === tema.preguntas.length;
+  return `
+  <div class="topbar">
+    <button class="back-btn" data-action="start-temas">${SVG.arrow} Temas</button>
+    ${todasRespondidas ? `<button class="reset-btn" data-action="reset-tema">${SVG.reset} Reiniciar</button>` : '<div></div>'}
+  </div>
+  <h2 style="margin-bottom:0.5rem;">${tema.nombre}</h2>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:1rem;">${tema.temaRef}</p>
+  <div class="resumen-box">${tema.resumen}</div>
+  <h3 style="margin-bottom:1rem;">Preguntas</h3>
+  ${tema.preguntas.map((q, qi) => {
+    const resp = respondidas[qi];
+    return `
+    <div class="tema-q">
+      <p class="tema-q-text">${q.p}</p>
+      ${q.ops.map((o, oi) => {
+        let cls = 'tema-opt';
+        if (resp !== undefined) {
+          if (oi === q.r) cls += ' option-correct';
+          else if (oi === resp && resp !== q.r) cls += ' option-wrong';
+        }
+        return `<button class="${cls}" ${resp !== undefined ? 'disabled' : ''} data-action="resp-tema" data-qi="${qi}" data-oi="${oi}">${o}</button>`;
+      }).join('')}
+      ${resp !== undefined && resp !== q.r ? docLink(tema.temaRef, tema.nombre) : ''}
+    </div>`;
+  }).join('')}`;
+}
+
+function renderResultado() {
+  const { preguntas, respuestas, tiempoTotal } = state;
+  const fallos = respuestas.filter((r, i) => r !== null && r !== preguntas[i].r).length;
+  const aciertos = respuestas.filter((r, i) => r === preguntas[i].r).length;
+  const aprobado = fallos <= 3;
+  const mins = Math.floor(tiempoTotal / 60);
+  const secs = String(tiempoTotal % 60).padStart(2, '0');
+  const errores = preguntas.reduce((acc, q, i) => {
+    if (respuestas[i] !== null && respuestas[i] !== q.r) acc.push({ q, seleccion: respuestas[i] });
+    return acc;
+  }, []);
+  const erroresHTML = errores.length > 0 ? `
+    <h3 style="margin:1.75rem 0 1rem;">Preguntas falladas</h3>
+    ${errores.map(({ q, seleccion }) => `
+      <div class="tema-q" style="margin-bottom:12px;">
+        <p class="tema-q-text">${q.p}</p>
+        ${q.ops.map((o, oi) => {
+          let cls = 'tema-opt';
+          if (oi === q.r) cls += ' option-correct';
+          else if (oi === seleccion) cls += ' option-wrong';
+          return `<button class="${cls}" disabled>${o}</button>`;
+        }).join('')}
+        ${docLink(q.temaRef, q.temaNombre)}
+      </div>
+    `).join('')}
+  ` : `<p style="font-size:14px;color:var(--text2);text-align:center;margin-top:1.5rem;">Sin errores. ¡Perfecto!</p>`;
+  return `
+  <div style="padding-top:1.25rem;">
+    <div class="result-icon">${aprobado ? '✅' : '❌'}</div>
+    <h2 class="result-title" style="color:${aprobado ? 'var(--success-text)' : 'var(--danger-text)'};">${aprobado ? 'Aprobado' : 'Suspenso'}</h2>
+    <p class="result-sub" style="margin-bottom:1.5rem;">${aprobado ? 'Has superado el umbral mínimo.' : 'Has cometido más de 3 errores.'}</p>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Aciertos</div><div class="stat-value">${aciertos}</div></div>
+      <div class="stat-card"><div class="stat-label">Fallos</div><div class="stat-value ${fallos > 3 ? 'color-danger' : ''}">${fallos}</div></div>
+      <div class="stat-card"><div class="stat-label">Tiempo</div><div class="stat-value">${mins}:${secs}</div></div>
+    </div>
+    <button class="next-btn" data-action="menu">Volver al menú</button>
+    ${erroresHTML}
+  </div>`;
+}
+
+function bindEvents() {
+  document.querySelectorAll('[data-action]').forEach(el => {
+    el.addEventListener('click', handleAction);
+  });
+}
+
+function handleAction(e) {
+  const btn = e.currentTarget;
+  const action = btn.dataset.action;
+  if (action === 'menu') {
+    if (state.timer) clearInterval(state.timer);
+    state = { view: 'menu' };
+  } else if (action === 'start-examen') {
+    const preguntas = shuffle(TODAS).slice(0, 30);
+    const timer = setInterval(() => {
+      state.tiempo++;
+      if (state.tiempo >= 2400) { terminarExamen(); return; }
+      const el = document.getElementById('timer-display');
+      if (el) {
+        const m = Math.floor(state.tiempo / 60);
+        const s = String(state.tiempo % 60).padStart(2, '0');
+        el.innerHTML = `${SVG.clock} ${m}:${s}`;
+      }
+    }, 1000);
+    state = { view: 'examen', preguntas, actual: 0, respuestas: new Array(30).fill(null), tiempo: 0, timer };
+  } else if (action === 'start-practica-selector') {
+    if (state.timer) clearInterval(state.timer);
+    state = { view: 'practica-selector' };
+  } else if (action === 'start-practica') {
+    const temaId = btn.dataset.temaId;
+    const pool = temaId === 'all' ? TODAS : TODAS.filter(q => q.temaId === temaId);
+    state = { view: 'practica', preguntas: shuffle(pool), actual: 0, respondida: false, seleccion: null, aciertos: 0, fallos: 0 };
+  } else if (action === 'start-temas') {
+    if (state.timer) clearInterval(state.timer);
+    state = { view: 'temas' };
+  } else if (action === 'ver-tema') {
+    state = { view: 'tema', temaId: btn.dataset.id, respondidas: {} };
+  } else if (action === 'reset-tema') {
+    state = { view: 'tema', temaId: state.temaId, respondidas: {} };
+  } else if (action === 'resp-examen') {
+    const idx = parseInt(btn.dataset.idx);
+    state.respuestas[state.actual] = idx;
+    if (state.actual >= state.preguntas.length - 1) { terminarExamen(); return; }
+    state.actual++;
+  } else if (action === 'resp-practica') {
+    const idx = parseInt(btn.dataset.idx);
+    state.seleccion = idx;
+    state.respondida = true;
+    if (idx === state.preguntas[state.actual].r) state.aciertos++;
+    else state.fallos++;
+  } else if (action === 'next-practica') {
+    state.actual = (state.actual + 1) % state.preguntas.length;
+    state.respondida = false;
+    state.seleccion = null;
+  } else if (action === 'resp-tema') {
+    const qi = parseInt(btn.dataset.qi);
+    const oi = parseInt(btn.dataset.oi);
+    state.respondidas = { ...state.respondidas, [qi]: oi };
+  }
+  render();
+}
+
+function terminarExamen() {
+  if (state.timer) clearInterval(state.timer);
+  state.tiempoTotal = state.tiempo;
+  state.view = 'resultado';
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
